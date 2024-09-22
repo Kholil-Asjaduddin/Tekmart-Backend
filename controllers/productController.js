@@ -70,3 +70,30 @@ exports.updateProduct = async (req, res) => {
             });
     }
 };
+
+/**
+ * Mengambil semua produk dari database dan mengembalikannya dalam format JSON, diurutkan dari A-Z.
+ * @route GET
+ * @param {Object} res.json Status code, pesan, dan data
+ * @return {void} JSON berisi daftar produk
+ */
+exports.getAllProduct = async (req, res) => {
+    try {
+        await Product.find()
+            .sort({ name: 1 })
+            .exec()
+            .then((products) => {
+                res.status(200).json({
+                    statusCode: 200,
+                    message: 'Success get all products',
+                    data: products
+                })
+            })
+    } catch (error) {
+        res.status(500).json({
+            statusCode: 500,
+            message: 'Failed to get all products',
+            error: error.message
+            });
+    }
+}
