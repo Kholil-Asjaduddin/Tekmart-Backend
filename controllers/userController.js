@@ -1,4 +1,4 @@
-const users = require('../models/users');
+const User = require('../models/User');
 const bcrypt = require('bcryptjs');// npm install express bcryptjs jsonwebtoken
 const jwt = require('jsonwebtoken'); 
 
@@ -16,7 +16,7 @@ const isAdmin = (req, res, next) => {
         return res.status(500).json({ message: 'Failed to authenticate token' });
       }
       
-      const user = users.find(user => user.id === decoded.id);
+      const user = User.find(user => user.id === decoded.id);
       if (!user || !user.isAdmin) {
         return res.status(403).json({ message: 'Require Admin Role!' });
       }
@@ -28,44 +28,44 @@ const isAdmin = (req, res, next) => {
 
 // Register User
 const registerUser = async (req, res) => {
-    const { name, email, password, isAdmin } = req.body; // Perlu tambahin isAdmin di body
-  
-    if (!name || !email || !password) {
-      return res.status(400).json({ message: 'Please provide all required fields (name, email, password)' });
-    }
-  
-    const userExists = users.find(user => user.email === email);
+  const { name, email, password, isAdmin } = req.body; // Perlu tambahin isAdmin di body
+
+  if (!name || !email || !password) {
+    return res.status(400).json({ message: 'Please provide all required fields (name, email, password)' });
+  }
+
+  try {
+    const userExists = await User.findOne({ email }); // Use async/await here
     if (userExists) {
       return res.status(400).json({ message: 'User already exists' });
     }
-  
-    try {
-      const hashedPassword = await bcrypt.hash(password, 10);
-      const newUser = {
-        id: users.length + 1,
-        name,
-        email,
-        password: hashedPassword,
-        isAdmin: isAdmin || false, // Default nya false 
-      };
-      users.push(newUser);
-  
-      res.status(201).json({
-        id: newUser.id,
-        name: newUser.name,
-        email: newUser.email,
-        isAdmin: newUser.isAdmin,
-      });
-    } catch (error) {
-      res.status(500).json({ message: 'Server error', error });
-    }
-  };
+
+    const hashedPassword = await bcrypt.hash(password, 10);
+    const newUser = new User({
+      name,
+      email,
+      password: hashedPassword,
+      isAdmin: isAdmin || false, // Default nya false 
+    });
+    await newUser
+      .save()
+      .then(() => {
+        res.status(201).json({
+          name: newUser.name,
+          email: newUser.email,
+          isAdmin: newUser.isAdmin,
+        });
+      })
+  } catch (error) {
+    res.status(500).json({ message: 'Server error', error });
+  }
+};
   
 // Login User
 const loginUser = async (req, res) => {
   const { email, password } = req.body;
 
-  const user = users.find(user => user.email === email);
+  const user = User.find(user => user.email === email);
 
   if (user && (await bcrypt.compare(password, user.password))) {
     res.json({
