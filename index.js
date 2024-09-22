@@ -1,18 +1,21 @@
 const express = require('express');
-
-const app = express();
+const connectDB = require('./configs/database');
 const userRoutes = require('./routes/userRoutes'); // Import user routes
 
+const app = express();
 
+// Menghubungkan ke database
+connectDB();
 
-// Middleware to parse JSON bodies
+// Middleware untuk parsing JSON
 app.use(express.json());
 
 
 // Use user routes for handling user-related endpoints
-app.use('/api/user', userRoutes); // Add the user routes under "/api/user" path
+app.use('/api/users', userRoutes); // Add the user routes under "/api/user" path
 
-// Start the server
-app.listen(3000, () => {
-    console.log('Server is running on port 3000');
+// Menjalankan server
+const PORT = process.env.PORT || 3000;
+app.listen(PORT, () => {
+  console.log(`Server berjalan pada http://localhost:${PORT}`);
 });
