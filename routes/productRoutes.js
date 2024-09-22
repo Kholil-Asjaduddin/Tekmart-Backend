@@ -9,5 +9,7 @@ router.post('/', isAdmin, productController.addProduct);
 router.put('/:id', isAdmin, productController.updateProduct);
 // Route mendapatkan informasi seluruh produk
 router.get('/', productController.getAllProduct);
+// Route mendapatkan informasi produk dengan id tertentu
+router.get('/:id', productController.getProductById);
 
 module.exports = router;

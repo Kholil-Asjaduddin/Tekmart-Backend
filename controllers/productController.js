@@ -97,3 +97,40 @@ exports.getAllProduct = async (req, res) => {
             });
     }
 }
+
+/**
+ * Mengambil produk dengan id tertentu dari database dan mengembalikannya dalam format JSON
+ * @route GET
+ * @param {Object} req.params Id produk
+ * @param {Object} res.json Status code, pesan, dan data
+ * @returns {void} JSON berisi informasi produk yang dicari
+ */
+exports.getProductById = async (req, res) => {
+    try {
+        const _id = req.params.id
+        await Product.findById(_id)
+            .exec()
+            .then((product) => {
+                if (!product) {
+                    res.status(404).json({
+                        statusCode: 404,
+                        message: `Product with id ${_id} not found`,
+                        data: []
+                    })
+                }
+                else{
+                    res.status(200).json({
+                        statusCode: 200,
+                        message: `Success get product with id ${_id}`,
+                        data: product
+                    })
+                }
+            })
+    } catch (error) {
+        res.status(500).json({
+            statusCode: 500,
+            message: `Failed to get product with id ${_id}`,
+            error: error.message
+            });
+    }
+}
