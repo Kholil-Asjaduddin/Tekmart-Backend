@@ -134,3 +134,41 @@ exports.getProductById = async (req, res) => {
             });
     }
 }
+
+/**
+ * Mengambil produk dengan categori tertentu dari database dan mengembalikannya dalam format JSON, diurutkan dari A-Z.
+ * @route GET
+ * @param {Object} req.params Kategori produk
+ * @param {Object} res.json Status code, pesan, dan data
+ * @returns {void} JSON berisi produk-produk yang dicari
+ */
+exports.getProductByCategory = async (req, res) => {
+    try {
+        const category = req.params.category
+        await Product.find({ category })
+            .sort({ name: 1 })
+            .exec()
+            .then((products) => {
+                if (!products) {
+                    res.status(404).json({
+                        statusCode: 404,
+                        message: `Product with category ${category} not found`,
+                        data: []
+                    })
+                }
+                else{
+                    res.status(200).json({
+                        statusCode: 200,
+                        message: `Success get product with category ${category}`,
+                        data: products
+                    })
+                }
+            })
+    } catch (error) {
+        res.status(500).json({
+            statusCode: 500,
+            message: `Failed to get product with category ${category}`,
+            error: error.message
+            });
+    }
+}
