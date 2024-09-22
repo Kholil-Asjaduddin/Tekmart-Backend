@@ -11,5 +11,7 @@ router.put('/:id', isAdmin, productController.updateProduct);
 router.get('/', productController.getAllProduct);
 // Route mendapatkan informasi produk dengan id tertentu
 router.get('/:id', productController.getProductById);
+// Route mendapatkan informasi produk dengan kategori tertentu
+router.get('/category/:category', productController.getProductByCategory);
 
 module.exports = router;
