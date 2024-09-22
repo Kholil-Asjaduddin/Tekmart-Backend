@@ -27,12 +27,23 @@ const paymentRoute = require("./routes/payment.route.js")
 const app = express();
 // Middleware to parse JSON bodies
 app.use(express.json());
-
+app.use(express.urlencoded({extended: false}));
 
 // Use user routes for handling user-related endpoints
-app.use('/api/user', userRoute); // Add the user routes under "/api/user" path
+app.use("api/products", productRoute)
+app.use("api/orders", orderRoute)
+app.use("api/payment", paymentRoute)
+app.use("api/user", userRoute) // Add the user routes under "/api/user" path
 
 // Start the server
-app.listen(3000, () => {
-    console.log('Server is running on port 3000');
+mongoose
+.connect(URI) //uri is connection string
+.then(()=>{
+    console.log("Connected to Database!");
+    app.listen(3000, () => {
+        console.log('Server running on port 3000');
+    })
+})
+.catch(() => {
+    console.log("Connection failed");  
 });
