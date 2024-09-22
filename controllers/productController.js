@@ -33,3 +33,40 @@ exports.addProduct = async (req, res) => {
             });
     }
 };
+
+/**
+ * Mengambil produk dengan categori tertentu dari database dan mengembalikannya dalam format JSON, diurutkan dari A-Z.
+ * @route POST
+ * @param {Object} req.body JSON berisi atribut yang ingin diubah nilainya
+ * @param {Object} res.json Status code, pesan, dan data
+ * @returns {void} JSON yang berisi informasi produk yang diubah
+ */
+exports.updateProduct = async (req, res) => {
+    try {
+        const _id = req.params.id;
+        const updatedData = req.body;
+        await Product.findByIdAndUpdate(_id, updatedData, { new: true })
+            .exec()
+            .then((updatedProduct) => {
+                if (!updatedProduct) {
+                    return res.status(404).json({
+                        statusCode: 404,
+                        message: `Product with id: ${_id} not found`
+                    });
+                }
+                else {
+                    res.status(200).json({
+                        statusCode: 200,
+                        message: `Product with id: ${_id} updated successfully`,
+                        data: updatedProduct
+                    });
+                }
+            })
+    } catch (error) {
+        res.status(500).json({
+            statusCode: 500,
+            message: 'Failed to update product',
+            error: error.message
+            });
+    }
+};
