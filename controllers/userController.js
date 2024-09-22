@@ -2,30 +2,6 @@ const User = require('../models/User');
 const bcrypt = require('bcryptjs');// npm install express bcryptjs jsonwebtoken
 const jwt = require('jsonwebtoken'); 
 
-// Untuk ngecek admin pake middleware 
-
-const isAdmin = (req, res, next) => {
-    const token = req.headers['authorization'];
-  
-    if (!token) {
-      return res.status(403).json({ message: 'No token provided' });
-    }
-  
-    jwt.verify(token, 'secretkey', (err, decoded) => {
-      if (err) {
-        return res.status(500).json({ message: 'Failed to authenticate token' });
-      }
-      
-      const user = User.find(user => user.id === decoded.id);
-      if (!user || !user.isAdmin) {
-        return res.status(403).json({ message: 'Require Admin Role!' });
-      }
-  
-      next();
-    });
-  };
-  
-
 // Register User
 const registerUser = async (req, res) => {
   const { name, email, password, isAdmin } = req.body; // Perlu tambahin isAdmin di body
@@ -99,6 +75,5 @@ const generateToken = (user) => {
 module.exports = {
   registerUser,
   loginUser,
-  logoutUser,
-  isAdmin, 
+  logoutUser
 };
