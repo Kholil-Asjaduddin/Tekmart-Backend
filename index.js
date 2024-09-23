@@ -1,32 +1,34 @@
 const express = require('express');
-//env
+const morgan = require("morgan"); // lock htpp request
+const bodyParser = require("body-parser"); // parsing body from request
+const cookieParser = require("cookie-parser"); // parsing cookie from request
+const cors = require("cors"); // allow request from different origin 
+const app = express();
+
+// DOTENV CONFIG
 const dotenv = require("dotenv");
 dotenv.config();
 
+// Connect to database
 const connectDB = require('./configs/database.js');
-const userRoutes = require('./routes/userRoutes'); // Import user routes
-const productRoutes = require('./routes/productRoutes');
-const orderRoutes = require('./routes/orderRoutes'); // Import rute order
-
-
-const app = express();
-
-// Menghubungkan ke database
 connectDB();
 
-// Middleware untuk parsing JSON
+// Middleware 
 app.use(express.json());
-app.use(express.urlencoded({extended: false}));
+app.use(morgan("dev"));
+app.use(bodyParser.json());
+app.use(cookieParser());
+app.use(cors()); // don't forget to configure cors at production
 
+// REST API
 // Use user routes for handling user-related endpoints
 app.use('/api/users', userRoutes); // Add the user routes under "/api/user" path
-// Menggunakan route product
+// Use product routes for handling product-related endpoints
 app.use('/api/products', productRoutes);
 app.use('/api', orderRoutes); 
 
-// Semua rute akan diawali dengan /api
-// Menjalankan server
+// Run the server
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
-  console.log(`Server berjalan pada http://localhost:${PORT}`);
+  console.log(`Server is running at http://localhost:${PORT}`);
 });
