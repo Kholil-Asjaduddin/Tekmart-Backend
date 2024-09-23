@@ -12,21 +12,21 @@ const {
 const router = express.Router();
 
 // Route to get all orders (Admin - Tekmart WebApp)
-router.get('/order', getAllOrders);
+router.get('/', getAllOrders);
 
 // Route to get all orders by a specific user (Pengguna)
-router.get('/order/user/:userId', getUserOrders);
+router.get('/user/:userId', getUserOrders);
 
 // Route to create a new order (Pengguna)
-router.post('/order', createOrder);
+router.post('/', createOrder);
 
 // Route to update an order (Tekmart WebApp or Petugas Tekmart)
-router.put('/order/:orderId', updateOrder);
+router.put('/:orderId', updateOrder);
 
 // Route to delete an order (Pengguna)
-router.delete('/order/:orderId', deleteOrder);
+router.delete('/:orderId', deleteOrder);
 
 // Route to verify an order using unique code (Petugas Tekmart)
-router.get('/order/verify/:uniqueCode', verifyOrder);
+router.get('/verify/:uniqueCode', verifyOrder);
 
 module.exports = router;
