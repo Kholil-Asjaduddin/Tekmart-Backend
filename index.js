@@ -24,10 +24,12 @@ app.use(cors()); // don't forget to configure cors at production
 const userRoutes = require('./routes/userRoutes');
 const productRoutes = require('./routes/productRoutes');
 const orderRoutes = require('./routes/orderRoutes');
+const paymentRoutes = require('./routes/paymentRoutes');
 
 app.use('/api/user', userRoutes); 
 app.use('/api/product', productRoutes);
 app.use('/api/order', orderRoutes); 
+app.use('/api/payment', paymentRoutes);
 
 // Run the server
 const PORT = process.env.PORT || 3000;
