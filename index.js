@@ -21,9 +21,11 @@ app.use(cookieParser());
 app.use(cors()); // don't forget to configure cors at production
 
 // REST API
-// Use user routes for handling user-related endpoints
-app.use('/api/users', userRoutes); // Add the user routes under "/api/user" path
-// Use product routes for handling product-related endpoints
+const userRoutes = require('./routes/userRoutes');
+const productRoutes = require('./routes/productRoutes');
+const orderRoutes = require('./routes/orderRoutes');
+
+app.use('/api/users', userRoutes); 
 app.use('/api/products', productRoutes);
 app.use('/api', orderRoutes); 
 
