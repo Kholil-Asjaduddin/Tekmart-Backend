@@ -20,6 +20,9 @@ const paymentSchema = new mongoose.Schema(
       required: true,
       default: 'Pending',
     },
+    transactionId: {
+      type: String,
+    },
   },
   { timestamps: true }
 );
