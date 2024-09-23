@@ -1,5 +1,5 @@
 const express = require('express');
-const Payment = require("../models/payment.model.js")
+const Payment = require("../models/Payment.js")
 const router = express.Router();
 
 module.exports = router;
