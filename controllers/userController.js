@@ -1,41 +1,29 @@
 const User = require('../models/User');
 const Blacklist = require('../models/Blacklist');
-const bcrypt = require('bcryptjs');// npm install express bcryptjs jsonwebtoken
+const bcrypt = require('bcrypt');// npm install express bcryptjs jsonwebtoken
 const jwt = require('jsonwebtoken'); 
 
-// Register User
 const registerUser = async (req, res) => {
-  const { name, email, password, isAdmin } = req.body; // Perlu tambahin isAdmin di body
-
-  if (!name || !email || !password) {
-    return res.status(400).json({ message: 'Please provide all required fields (name, email, password)' });
-  }
-
   try {
-    const userExists = await User.findOne({ email }); // Use async/await here
-    if (userExists) {
-      return res.status(400).json({ message: 'User already exists' });
-    }
+      const { name, email, password } = req.body;
+      if (!name || !email || !password) {
+        return res.status(400).json({ message: 'Please provide all required fields (name, email, password)' });
+      }
 
-    const hashedPassword = await bcrypt.hash(password, 10);
-    const newUser = new User({
-      name,
-      email,
-      password: hashedPassword,
-      isAdmin: isAdmin || false, // Default nya false 
-    });
-    await newUser
-      .save()
-      .then(() => {
-        res.status(201).json({
-          name: newUser.name,
-          email: newUser.email,
-          isAdmin: newUser.isAdmin,
-          token: generateToken(newUser),
-        });
-      })
+      const hashedPassword = await bcrypt.hash(password, 10); // Perbaikan di sini
+      const newUser = new User({ name, email, password: hashedPassword }); // Perbaikan di sini
+      await newUser.save();
+      res.status(201).json({
+          statusCode: 201,
+          message: 'User added successfully',
+          data: newUser    
+      });
   } catch (error) {
-    res.status(500).json({ message: 'Server error', error });
+      res.status(500).json({
+          statusCode: 500,
+          message: 'Failed to add new user', // Perbaikan di sini
+          error: error.message
+      });
   }
 };
   
@@ -67,6 +55,7 @@ const loginUser = async (req, res) => {
 const logoutUser = async (req, res) => {
   try {
     const authHeader = req.headers['authorization']; // Get the token from the authorization header
+    console.log(authHeader)
     if (!authHeader) return res.sendStatus(204); // No token provided, just return success
 
     const token = authHeader.split(' ')[1]; // Extract the token from the Bearer scheme
