@@ -3,7 +3,7 @@ const express = require('express');
 const dotenv = require("dotenv");
 dotenv.config();
 
-const connectDB = require('./configs/database');
+const connectDB = require('./configs/database.js');
 const userRoutes = require('./routes/userRoutes'); // Import user routes
 const productRoutes = require('./routes/productRoutes');
 const orderRoutes = require('./routes/orderRoutes'); // Import rute order
