@@ -14,7 +14,7 @@ exports.processPayment = async (req, res) => {
 
     // Simulate payment processing
     const payment = new Payment({
-      order: orderId,
+      orderId,
       totalPrice,
       paymentMethod,
       status: 'Completed',
@@ -36,7 +36,7 @@ exports.processPayment = async (req, res) => {
 // Get Payment Detail by Order ID
 exports.getPaymentByOrderId = async (req, res) => {
   try {
-    const payment = await Payment.findOne({ order: req.params.orderId });
+    const payment = await Payment.findOne({ orderId: req.params.orderId });
 
     if (payment) {
       res.json(payment);
