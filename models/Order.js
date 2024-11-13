@@ -27,7 +27,9 @@ OrderSchema.pre('save', async function (next) {
   for (let item of this.items) {
     const product = await mongoose.model('Product').findById(item.productId);
     if (product.stock < item.amount) {
-      throw new Error(`Stock not enough for product: ${product.name}`);
+      const error = new Error(`Stock not enough for product: ${product.name}`);
+      error.statusCode400 = 400;
+      throw error;
     }
     product.stock -= item.amount; // Kurangi stok produk
     await product.save();
