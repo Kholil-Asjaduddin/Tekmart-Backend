@@ -8,7 +8,7 @@ const registerUser = async (req, res) => {
     const { email, password } = req.body;
     if (!email || !password) {
       return res.status(400).json({
-        message: "Please provide all required fields (name, email, password)",
+        message: "Please provide all required fields (email, password)",
       });
     }
 
@@ -48,7 +48,6 @@ const loginUser = async (req, res) => {
     if (user && (await bcrypt.compare(password, user.password))) {
       res.json({
         id: user.id,
-        name: user.name,
         email: user.email,
         isAdmin: user.isAdmin,
       });
