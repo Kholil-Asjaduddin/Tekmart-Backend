@@ -18,7 +18,10 @@ app.use(express.json());
 app.use(morgan("dev"));
 app.use(bodyParser.json());
 app.use(cookieParser());
-app.use(cors()); // don't forget to configure cors at production
+app.use(cors({
+  origin: 'http://localhost:5173', 
+  credentials: true, // Enable credentials in CORS
+})); // don't forget to configure cors at production
 
 // REST API
 const userRoutes = require('./routes/userRoutes');
