@@ -65,17 +65,17 @@ const logoutUser = async (req, res) => {
   try {
     const token = req.cookies.token; // Extract token from httpOnly cookie
     if (!token) return res.status(401).json({ message: "No token provided" });
-    
-    const tokenHash = crypto.createHash("sha256").update(token).digest("hex"); // Hash token before storing in the database
-    const checkIfBlacklisted = await Blacklist.findOne({ token: tokenHash }); // Check if token is already blacklisted
 
-    if (checkIfBlacklisted) {
-      return res.sendStatus(204); // If already blacklisted, no need to blacklist again
-    }
+    // const tokenHash = crypto.createHash("sha256").update(token).digest("hex"); // Hash token before storing in the database
+    // const checkIfBlacklisted = await Blacklist.findOne({ token: tokenHash }); // Check if token is already blacklisted
 
-    // Add token to blacklist
-    const newBlacklist = new Blacklist({ token: tokenHash });
-    await newBlacklist.save();
+    // if (checkIfBlacklisted) {
+    //   return res.sendStatus(204); // If already blacklisted, no need to blacklist again
+    // }
+
+    // // Add token to blacklist
+    // const newBlacklist = new Blacklist({ token: tokenHash });
+    // await newBlacklist.save();
 
     res.clearCookie("token"); // Clear the httpOnly cookie
     res.status(200).json({ message: "User successfully logged out" });
