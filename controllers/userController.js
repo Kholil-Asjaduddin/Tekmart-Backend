@@ -37,6 +37,10 @@ const loginUser = async (req, res) => {
   try {
     const user = await User.findOne({ email }); // Gunakan findOne dan await
 
+    if (!user) {
+      return res.status(401).json({ message: "Email not found" });
+    }
+
     const token = generateToken(user);
     res.cookie("token", token, {
       httpOnly: true,
