@@ -78,7 +78,7 @@ const logoutUser = async (req, res) => {
 };
 
 const generateToken = (user) => {
-  return jwt.sign({ id: user.id, isAdmin: user.isAdmin }, 'secretkey', {
+  return jwt.sign({ id: user.id, isAdmin: user.isAdmin }, process.env.JWT_SECRET, {
     expiresIn: '30d',
   });
 };
@@ -97,7 +97,7 @@ const verifyToken = async (req, res, next) => {
   }
 
   // If not blacklisted, verify the token
-  jwt.verify(token, 'secretkey', (err, decoded) => {
+  jwt.verify(token, process.env.JWT_SECRET, (err, decoded) => {
     if (err) return res.status(403).json({ message: 'Token is invalid' });
     req.user = decoded; // Attach the user info to the request object
     next(); // Continue to the next middleware or route handler
