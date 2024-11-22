@@ -63,11 +63,9 @@ const loginUser = async (req, res) => {
 // Logout User
 const logoutUser = async (req, res) => {
   try {
-    const authHeader = req.headers["authorization"]; // Get the token from the authorization header
-    console.log(authHeader);
-    if (!authHeader) return res.sendStatus(204); // No token provided, just return success
-
-    const token = authHeader.split(" ")[1]; // Extract the token from the Bearer scheme
+    const token = req.cookies.token; // Extract token from httpOnly cookie
+    if (!token) return res.status(401).json({ message: "No token provided" });
+    
     const tokenHash = crypto.createHash("sha256").update(token).digest("hex"); // Hash token before storing in the database
     const checkIfBlacklisted = await Blacklist.findOne({ token: tokenHash }); // Check if token is already blacklisted
 
