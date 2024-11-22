@@ -5,13 +5,14 @@ const jwt = require('jsonwebtoken');
 
 const registerUser = async (req, res) => {
   try {
-      const { name, email, password } = req.body;
-      if (!name || !email || !password) {
+      const { email, password } = req.body;
+      if (!email || !password) {
         return res.status(400).json({ message: 'Please provide all required fields (name, email, password)' });
       }
 
-      const hashedPassword = await bcrypt.hash(password, 10); // Perbaikan di sini
-      const newUser = new User({ name, email, password: hashedPassword }); // Perbaikan di sini
+      const saltRounds = 12;
+      const hashedPassword = await bcrypt.hash(password, saltRounds); 
+      const newUser = new User({ email, password: hashedPassword }); 
       await newUser.save();
       res.status(201).json({
           statusCode: 201,
@@ -21,7 +22,7 @@ const registerUser = async (req, res) => {
   } catch (error) {
       res.status(500).json({
           statusCode: 500,
-          message: 'Failed to add new user', // Perbaikan di sini
+          message: 'Failed to add new user', 
           error: error.message
       });
   }
@@ -59,14 +60,15 @@ const logoutUser = async (req, res) => {
     if (!authHeader) return res.sendStatus(204); // No token provided, just return success
 
     const token = authHeader.split(' ')[1]; // Extract the token from the Bearer scheme
-    const checkIfBlacklisted = await Blacklist.findOne({ token }); // Check if token is already blacklisted
+    const tokenHash = crypto.createHash('sha256').update(token).digest('hex'); // Hash token before storing in the database
+    const checkIfBlacklisted = await Blacklist.findOne({ token: tokenHash }); // Check if token is already blacklisted
 
     if (checkIfBlacklisted) {
       return res.sendStatus(204); // If already blacklisted, no need to blacklist again
     }
 
     // Add token to blacklist
-    const newBlacklist = new Blacklist({ token });
+    const newBlacklist = new Blacklist({ token: tokenHash });
     await newBlacklist.save();
 
     res.status(200).json({ message: 'User successfully logged out' });
@@ -86,9 +88,10 @@ const verifyToken = async (req, res, next) => {
   if (!authHeader) return res.status(401).json({ message: 'No token provided' });
 
   const token = authHeader.split(' ')[1]; // Extract token from Bearer scheme
+  const tokenHash = crypto.createHash('sha256').update(token).digest('hex'); // Hash token before checking in the database
 
   // Check if token is blacklisted
-  const blacklistedToken = await Blacklist.findOne({ token });
+  const blacklistedToken = await Blacklist.findOne({ token: tokenHash });
   if (blacklistedToken) {
     return res.status(401).json({ message: 'Token has been blacklisted. Please log in again.' });
   }
