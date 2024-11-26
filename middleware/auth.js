@@ -54,3 +54,27 @@ exports.protect = async (req, res, next) => {
     res.status(401).json({ message: "Not authorized, no token" });
   }
 };
+
+// Middleware for get user id from token
+exports.verifyToken = (req, res, next) => {
+  try {
+    // Extract token from cookie
+    const token = req.cookies.token; // Assuming your cookie name is 'token'
+
+    if (!token) {
+      return res.status(401).json({ message: 'No token provided, authorization denied' });
+    }
+
+    // Verify token
+    const decoded = jwt.verify(token, process.env.JWT_SECRET);
+    
+    // Attach userId to the request object
+    req.userId = decoded.id;
+
+    next();
+  } catch (error) {
+    console.error('Token verification failed', error);
+    res.status(401).json({ message: 'Invalid token, authorization denied' });
+  }
+};
+

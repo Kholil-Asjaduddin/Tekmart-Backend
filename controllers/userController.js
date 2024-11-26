@@ -98,31 +98,8 @@ const generateToken = (user) => {
   );
 };
 
-const verifyToken = async (req, res, next) => {
-  const token = req.cookies.token; // Extract token from httpOnly cookie
-  if (!token) return res.status(401).json({ message: "No token provided" });
-
-  const tokenHash = crypto.createHash("sha256").update(token).digest("hex"); // Hash token before checking in the database
-
-  // Check if token is blacklisted
-  const blacklistedToken = await Blacklist.findOne({ token: tokenHash });
-  if (blacklistedToken) {
-    return res
-      .status(401)
-      .json({ message: "Token has been blacklisted. Please log in again." });
-  }
-
-  // If not blacklisted, verify the token
-  jwt.verify(token, process.env.JWT_SECRET, (err, decoded) => {
-    if (err) return res.status(403).json({ message: "Token is invalid" });
-    req.user = decoded; // Attach the user info to the request object
-    next(); // Continue to the next middleware or route handler
-  });
-};
-
 module.exports = {
   registerUser,
   loginUser,
   logoutUser,
-  verifyToken,
 };
