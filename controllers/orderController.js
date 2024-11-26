@@ -15,7 +15,7 @@ exports.getAllOrders = async (req, res) => {
 // View all orders by a specific user (Pengguna)
 exports.getUserOrders = async (req, res) => {
   try {
-    const { userId } = req.params;
+    const userId = req.userId // get from verifyToken middleware
     const orders = await Order.find({ userId }).populate('items.productId');
     if (!orders.length) {
       return res.status(404).json({ message: 'No orders found for this user' });
@@ -29,8 +29,8 @@ exports.getUserOrders = async (req, res) => {
 // Create a new order (Pengguna)
 exports.createOrder = async (req, res) => {
   try {
-    const { userId, items, totalPrice } = req.body;
-    
+    const { items, totalPrice } = req.body;
+    const userId = req.userId // get from verifyToken middleware
     // Generate a unique code for verification (simple random string)
     const uniqueCode = crypto.randomBytes(4).toString('hex').toUpperCase();
 

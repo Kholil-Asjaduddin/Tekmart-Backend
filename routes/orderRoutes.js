@@ -8,6 +8,7 @@ const {
   deleteOrder,
   verifyOrder
 } = require('../controllers/orderController');
+const { verifyToken } = require('../middleware/auth');
 
 const router = express.Router();
 
@@ -15,10 +16,10 @@ const router = express.Router();
 router.get('/', getAllOrders);
 
 // Route to get all orders by a specific user (Pengguna)
-router.get('/user/:userId', getUserOrders);
+router.get('/user/:userId', verifyToken, getUserOrders);
 
 // Route to create a new order (Pengguna)
-router.post('/', createOrder);
+router.post('/', verifyToken, createOrder);
 
 // Route to update an order (Tekmart WebApp or Petugas Tekmart)
 router.put('/:orderId', updateOrder);
