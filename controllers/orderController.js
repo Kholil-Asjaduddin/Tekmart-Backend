@@ -29,8 +29,10 @@ exports.getUserOrders = async (req, res) => {
 // Create a new order (Pengguna)
 exports.createOrder = async (req, res) => {
   try {
-    const { items, totalPrice } = req.body;
-    const userId = req.userId // get from verifyToken middleware
+    const { userId, items, totalPrice } = req.body;
+    // // get from verifyToken middleware
+    // const userId = req.userId
+    
     // Generate a unique code for verification (simple random string)
     const uniqueCode = crypto.randomBytes(4).toString('hex').toUpperCase();
 
