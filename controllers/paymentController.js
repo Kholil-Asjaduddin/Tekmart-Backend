@@ -64,3 +64,18 @@ exports.getPaymentByOrderId = async (req, res) => {
     res.status(500).json({ message: error.message });
   }
 };
+
+// Get All Payments
+exports.getAllPayments = async (req, res) => {
+  try {
+    const payments = await Payment.find();
+
+    if (payments.length > 0) {
+      res.status(200).json(payments);
+    } else {
+      res.status(404).json({ message: "No payments found" });
+    }
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+};
