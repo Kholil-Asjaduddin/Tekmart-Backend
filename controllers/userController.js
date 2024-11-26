@@ -41,16 +41,15 @@ const loginUser = async (req, res) => {
       return res.status(401).json({ message: "Email not found" });
     }
 
-    const token = generateToken(user);
-    res.cookie("token", token, {
-      httpOnly: true,
-      secure: process.env.EXPRESS_ENV === "production",
-      sameSite: "strict",
-      maxAge: 30 * 24 * 60 * 60 * 1000, // 30 days
-    });
-
     if (user && (await bcrypt.compare(password, user.password))) {
-      res.json({
+      const token = generateToken(user);
+      res.cookie("token", token, {
+        httpOnly: true,
+        secure: process.env.EXPRESS_ENV === "production",
+        sameSite: "strict",
+        maxAge: 30 * 24 * 60 * 60 * 1000, // 30 days
+      });
+      res.status(200).json({
         id: user.id,
         email: user.email,
         isAdmin: user.isAdmin,
