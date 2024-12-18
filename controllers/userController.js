@@ -45,8 +45,8 @@ const loginUser = async (req, res) => {
       const token = generateToken(user);
       res.cookie("token", token, {
         httpOnly: true,
-        secure: process.env.EXPRESS_ENV === "production",
-        sameSite: "strict",
+        secure: true,
+        sameSite: "none",
         maxAge: 30 * 24 * 60 * 60 * 1000, // 30 days
       });
       res.status(200).json({
@@ -80,7 +80,11 @@ const logoutUser = async (req, res) => {
     // const newBlacklist = new Blacklist({ token: tokenHash });
     // await newBlacklist.save();
 
-    res.clearCookie("token"); // Clear the httpOnly cookie
+    res.clearCookie("token", {
+      httpOnly: true,
+      secure: true,
+      sameSite: "none",
+    }); // Clear the httpOnly cookie
     res.status(200).json({ message: "User successfully logged out" });
   } catch (error) {
     res.status(500).json({ message: "Server error", error });
