@@ -14,7 +14,7 @@ const OrderSchema = new mongoose.Schema({
   totalPrice: { type: Number, required: true }, // Jumlah total harga pesanan
   statusOrder: {
     type: String,
-    enum: ['Pending', 'Diproses', 'Siap diambil', 'Selesai', 'Dibatalkan'],
+    enum: ['Pending', 'Ready to be Taken', 'Confirm', 'Cancelled'],
     default: 'Pending'
   },
   uniqueCode: { type: String, required: true }, // Misal kode unik untuk verifikasi
