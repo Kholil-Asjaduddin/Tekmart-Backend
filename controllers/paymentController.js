@@ -34,6 +34,7 @@ exports.processPayment = async (req, res) => {
       paymentMethod: "Midtrans",
       status: "Pending",
       transactionId: transactionToken,
+      customerDetails,
     });
 
     // Save payment object to database
