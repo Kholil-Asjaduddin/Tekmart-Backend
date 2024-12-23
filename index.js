@@ -22,7 +22,7 @@ app.use(cookieParser());
 const allowedOrigins = [
   "http://localhost:5173",
   "https://tekmart-frontend-vite.vercel.app", // Vercel
-  "https://teknikmart.biz.id/", // Domainesia
+  "https://teknikmart.biz.id", // Domainesia
 ];
 
 app.use(

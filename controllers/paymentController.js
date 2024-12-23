@@ -4,7 +4,7 @@ const snap = require("../configs/midtrans");
 
 // Process Payment
 exports.processPayment = async (req, res) => {
-  const { orderId, totalPrice, customerDetails } = req.body;
+  const { orderId, totalPrice, customerDetails, paymentMethod } = req.body;
 
   try {
     const order = await Order.findById(orderId);
@@ -14,25 +14,32 @@ exports.processPayment = async (req, res) => {
     }
 
     // Create transaction parameters for Midtrans
-    const transactionParams = {
-      transaction_details: {
-        order_id: orderId,
-        gross_amount: totalPrice,
-      },
-      customer_details: customerDetails,
-    };
+    const transactionParams =
+      paymentMethod === "Cash"
+        ? null
+        : {
+            transaction_details: {
+              order_id: orderId,
+              gross_amount: totalPrice,
+            },
+            customer_details: customerDetails,
+          };
 
     // Create transaction using Midtrans Snap
-    const transaction = await snap.createTransaction(transactionParams);
-    const transactionToken = transaction.token;
-    const redirectUrl = transaction.redirect_url;
+    const transaction =
+      transactionParams === null
+        ? null
+        : await snap.createTransaction(transactionParams);
+    const transactionToken =
+      transaction === null ? "via cash not generate token" : transaction.token;
+    const redirectUrl = "/order";
 
     // Create payment object with pending status
     const payment = new Payment({
       orderId,
       totalPrice,
-      paymentMethod: "Midtrans",
-      status: "Pending",
+      paymentMethod: paymentMethod === "Cash" ? "Cash" : "Midtrans",
+      status: "Paid", // ! Change defaultto "Pending" if using Midtrans
       transactionId: transactionToken,
       customerDetails,
     });
@@ -40,12 +47,14 @@ exports.processPayment = async (req, res) => {
     // Save payment object to database
     await payment.save();
 
-    // Uncomment this code to update order status to "Paid" after payment
+    // Uncomment this code to update order status to "Paid" after payment`
     //  order.status = "Paid";
     //  await order.save();
- 
+
     // Respond with the transaction token for frontend to proceed with payment
-    res.status(201).json({ token: transactionToken, redirect_url: redirectUrl });
+    res
+      .status(201)
+      .json({ token: transactionToken, redirect_url: redirectUrl });
   } catch (error) {
     res.status(500).json({ message: error.message });
   }
