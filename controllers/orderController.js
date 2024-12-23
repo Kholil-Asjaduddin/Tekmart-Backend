@@ -1,52 +1,55 @@
 // controllers/orderController.js
-const Order = require('../models/Order');
-const crypto = require('crypto'); // Used to generate unique code
+const Order = require("../models/Order");
+const crypto = require("crypto"); // Used to generate unique code
 
 // View all orders (Admin - Tekmart WebApp)
 exports.getAllOrders = async (req, res) => {
   try {
-    const orders = await Order.find().populate('userId items.productId');
+    const orders = await Order.find().populate("userId items.productId");
     res.status(200).json(orders);
   } catch (err) {
-    res.status(500).json({ error: 'Failed to retrieve orders' });
+    res.status(500).json({ error: "Failed to retrieve orders" });
   }
 };
 
 // View all orders by a specific user (Pengguna)
 exports.getUserOrders = async (req, res) => {
   try {
-    const userId = req.userId // get from verifyToken middleware
-    const orders = await Order.find({ userId }).populate('items.productId');
+    const userId = req.userId; // get from verifyToken middleware
+    const orders = await Order.find({ userId }).populate("items.productId");
     if (!orders.length) {
-      return res.status(404).json({ message: 'No orders found for this user' });
+      return res.status(404).json({ message: "No orders found for this user" });
     }
     res.status(200).json(orders);
   } catch (err) {
-    res.status(500).json({ error: 'Failed to retrieve user orders' });
+    res.status(500).json({ error: "Failed to retrieve user orders" });
   }
 };
 
 // Create a new order (Pengguna)
 exports.createOrder = async (req, res) => {
   try {
-    const { userId, items, totalPrice } = req.body;
+    const { userId, items, totalPrice, paymentMethod } = req.body;
     // // get from verifyToken middleware
     // const userId = req.userId
-    
+
     // Generate a unique code for verification (simple random string)
-    const uniqueCode = crypto.randomBytes(4).toString('hex').toUpperCase();
+    const uniqueCode = crypto.randomBytes(4).toString("hex").toUpperCase();
 
     const newOrder = new Order({
       userId,
       items,
       totalPrice,
-      uniqueCode
+      uniqueCode,
+      paymentMethod: paymentMethod === "cash" ? "Cash" : "Midtrans",
     });
-    
+
     const savedOrder = await newOrder.save();
     res.status(201).json(savedOrder);
   } catch (err) {
-    res.status(err.statusCode400 || 500).json({ error: err.message || 'Failed to create order' });
+    res
+      .status(err.statusCode400 || 500)
+      .json({ error: err.message || "Failed to create order" });
   }
 };
 
@@ -55,14 +58,14 @@ exports.updateOrder = async (req, res) => {
   try {
     const { orderId } = req.params;
     const updatedOrder = await Order.findByIdAndUpdate(orderId, req.body, {
-      new: true
+      new: true,
     });
     if (!updatedOrder) {
-      return res.status(404).json({ message: 'Order not found' });
+      return res.status(404).json({ message: "Order not found" });
     }
     res.status(200).json(updatedOrder);
   } catch (err) {
-    res.status(500).json({ error: 'Failed to update order' });
+    res.status(500).json({ error: "Failed to update order" });
   }
 };
 
@@ -72,11 +75,11 @@ exports.deleteOrder = async (req, res) => {
     const { orderId } = req.params;
     const deletedOrder = await Order.findByIdAndDelete(orderId);
     if (!deletedOrder) {
-      return res.status(404).json({ message: 'Order not found' });
+      return res.status(404).json({ message: "Order not found" });
     }
-    res.status(200).json({ message: 'Order deleted successfully' });
+    res.status(200).json({ message: "Order deleted successfully" });
   } catch (err) {
-    res.status(500).json({ error: 'Failed to delete order' });
+    res.status(500).json({ error: "Failed to delete order" });
   }
 };
 
@@ -87,16 +90,17 @@ exports.verifyOrder = async (req, res) => {
     const order = await Order.findOne({ uniqueCode });
 
     if (!order) {
-      return res.status(404).json({ message: 'Order not found or invalid code' });
+      return res
+        .status(404)
+        .json({ message: "Order not found or invalid code" });
     }
 
     // Update order status to 'Selesai' after successful verification
-    order.statusOrder = 'Selesai';
+    order.statusOrder = "Selesai";
     await order.save();
 
-    res.status(200).json({ message: 'Order successfully verified', order });
+    res.status(200).json({ message: "Order successfully verified", order });
   } catch (err) {
-    res.status(500).json({ error: 'Failed to verify order' });
+    res.status(500).json({ error: "Failed to verify order" });
   }
 };
-
