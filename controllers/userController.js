@@ -6,22 +6,57 @@ const jwt = require("jsonwebtoken");
 const registerUser = async (req, res) => {
   try {
     const { email, password } = req.body;
+
+    // Check if email and password are provided
     if (!email || !password) {
       return res.status(400).json({
         message: "Please provide all required fields (email, password)",
       });
     }
 
+    // Validate email domain
+    const emailRegex = /^[a-zA-Z0-9._%+-]+@mail\.ugm\.ac\.id$/;
+    if (!emailRegex.test(email)) {
+      return res.status(400).json({
+        message:
+          "Invalid email. Only UGM email addresses are allowed (mail.ugm.ac.id)",
+      });
+    }
+
+    // Validate password strength
+    const passwordRegex =
+      /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/;
+    if (!passwordRegex.test(password)) {
+      return res.status(400).json({
+        message:
+          "Password must be at least 8 characters long, contain one uppercase letter, one lowercase letter, one number, and one special character",
+      });
+    }
+
+    // Hash password
     const saltRounds = 12;
     const hashedPassword = await bcrypt.hash(password, saltRounds);
+
+    // Save user
     const newUser = new User({ email, password: hashedPassword });
     await newUser.save();
+
+    // Success response
     res.status(201).json({
       statusCode: 201,
       message: "User added successfully",
       data: newUser,
     });
   } catch (error) {
+    // Handle duplicate email error
+    if (error.code === 11000 && error.keyPattern?.email) {
+      return res.status(409).json({
+        statusCode: 409,
+        message: "Email is already registered",
+      });
+    }
+
+    // General server error
     res.status(500).json({
       statusCode: 500,
       message: "Failed to add new user",
