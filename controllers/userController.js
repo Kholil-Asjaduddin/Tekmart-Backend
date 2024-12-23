@@ -6,22 +6,57 @@ const jwt = require("jsonwebtoken");
 const registerUser = async (req, res) => {
   try {
     const { email, password } = req.body;
+
+    // Check if email and password are provided
     if (!email || !password) {
       return res.status(400).json({
         message: "Please provide all required fields (email, password)",
       });
     }
 
+    // Validate email domain
+    const emailRegex = /^[a-zA-Z0-9._%+-]+@mail\.ugm\.ac\.id$/;
+    if (!emailRegex.test(email)) {
+      return res.status(400).json({
+        message:
+          "Invalid email. Only UGM email addresses are allowed (mail.ugm.ac.id)",
+      });
+    }
+
+    // Validate password strength
+    const passwordRegex =
+      /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/;
+    if (!passwordRegex.test(password)) {
+      return res.status(400).json({
+        message:
+          "Password must be at least 8 characters long, contain one uppercase letter, one lowercase letter, one number, and one special character",
+      });
+    }
+
+    // Hash password
     const saltRounds = 12;
     const hashedPassword = await bcrypt.hash(password, saltRounds);
+
+    // Save user
     const newUser = new User({ email, password: hashedPassword });
     await newUser.save();
+
+    // Success response
     res.status(201).json({
       statusCode: 201,
       message: "User added successfully",
       data: newUser,
     });
   } catch (error) {
+    // Handle duplicate email error
+    if (error.code === 11000 && error.keyPattern?.email) {
+      return res.status(409).json({
+        statusCode: 409,
+        message: "Email is already registered",
+      });
+    }
+
+    // General server error
     res.status(500).json({
       statusCode: 500,
       message: "Failed to add new user",
@@ -45,8 +80,8 @@ const loginUser = async (req, res) => {
       const token = generateToken(user);
       res.cookie("token", token, {
         httpOnly: true,
-        secure: process.env.EXPRESS_ENV === "production",
-        sameSite: "strict",
+        secure: true,
+        sameSite: "none",
         maxAge: 30 * 24 * 60 * 60 * 1000, // 30 days
       });
       res.status(200).json({
@@ -80,7 +115,11 @@ const logoutUser = async (req, res) => {
     // const newBlacklist = new Blacklist({ token: tokenHash });
     // await newBlacklist.save();
 
-    res.clearCookie("token"); // Clear the httpOnly cookie
+    res.clearCookie("token", {
+      httpOnly: true,
+      secure: true,
+      sameSite: "none",
+    }); // Clear the httpOnly cookie
     res.status(200).json({ message: "User successfully logged out" });
   } catch (error) {
     res.status(500).json({ message: "Server error", error });

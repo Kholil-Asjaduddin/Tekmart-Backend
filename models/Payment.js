@@ -1,11 +1,11 @@
-const mongoose = require('mongoose');
+const mongoose = require("mongoose");
 
 const paymentSchema = new mongoose.Schema(
   {
     orderId: {
       type: mongoose.Schema.Types.ObjectId,
       required: true,
-      ref: 'Order',
+      ref: "Order",
     },
     totalPrice: {
       type: Number,
@@ -18,13 +18,24 @@ const paymentSchema = new mongoose.Schema(
     status: {
       type: String,
       required: true,
-      default: 'Pending',
+      default: "Pending",
     },
     transactionId: {
       type: String,
+    },
+    customerDetails: {
+      first_name: {
+        type: String,
+      },
+      email: {
+        type: String,
+      },
+      phone: {
+        type: String,
+      },
     },
   },
   { timestamps: true }
 );
 
-module.exports = mongoose.model('Payment', paymentSchema);
+module.exports = mongoose.model("Payment", paymentSchema);
