@@ -15,7 +15,7 @@ exports.processPayment = async (req, res) => {
 
     // Create transaction parameters for Midtrans
     const transactionParams =
-      paymentMethod === "cash"
+      paymentMethod === "Cash"
         ? null
         : {
             transaction_details: {
@@ -38,7 +38,7 @@ exports.processPayment = async (req, res) => {
     const payment = new Payment({
       orderId,
       totalPrice,
-      paymentMethod: paymentMethod === "cash" ? "Cash" : "Midtrans",
+      paymentMethod: paymentMethod === "Cash" ? "Cash" : "Midtrans",
       status: "Paid", // ! Change defaultto "Pending" if using Midtrans
       transactionId: transactionToken,
       customerDetails,

@@ -41,7 +41,7 @@ exports.createOrder = async (req, res) => {
       items,
       totalPrice,
       uniqueCode,
-      paymentMethod: paymentMethod === "cash" ? "Cash" : "Midtrans",
+      paymentMethod: paymentMethod === "Cash" ? "Cash" : "Midtrans",
     });
 
     const savedOrder = await newOrder.save();
