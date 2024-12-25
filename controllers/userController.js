@@ -116,6 +116,7 @@ const logoutUser = async (req, res) => {
     // await newBlacklist.save();
 
     res.clearCookie("token", {
+      path: "/",
       httpOnly: true,
       secure: true,
       sameSite: "none",
